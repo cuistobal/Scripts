@@ -8,22 +8,10 @@ functions_file="functions"
 > "$paths_file"
 > "$functions_file"
 
-# Add the Makefile header to the paths file
-echo "SOURCES = \\" > "$paths_file"
-
 # Find all C files in the current directory
-c_files=($(find . -type f -name "*.c")) # Store files in an array
-file_count=${#c_files[@]} # Get the total number of files
-counter=0
-
-for input_file in "${c_files[@]}"; do
-    counter=$((counter + 1))
+for input_file in $(find . -type f -name "*.c"); do
     # Save the relative path to the paths file
-    if [[ $counter -lt $file_count ]]; then
-        echo "    ${input_file#./} \\" >> "$paths_file" # Add a backslash for non-final lines
-    else
-        echo "    ${input_file#./}" >> "$paths_file" # No backslash for the last line
-    fi
+    echo "${input_file#./}" >> "$paths_file"
 
     # Extract matching lines (not starting with "//" but preceded by a "//" comment) to the functions file
     awk -v file="${input_file#./}" '
@@ -46,15 +34,11 @@ for input_file in "${c_files[@]}"; do
 done
 
 # Print the content of both files, separated by 3 blank lines
-echo "--- Paths File ---"
-echo ""
+echo "--- Paths File ---\n"
 cat "$paths_file"
-echo ""
-echo ""
-echo "--- Functions File ---"
+echo "\n\n--- Functions File ---"
 cat "$functions_file"
-echo ""
-
+echo "\n"
 # Ask the user if they want to copy the content of either file
 read -p "Do you want to copy the content of 'functions', 'paths', or 'none' to the clipboard? (f/p/n): " copy_choice
 case "$copy_choice" in
