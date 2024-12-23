@@ -1,53 +1,62 @@
 #!/bin/bash
 
-# Files to save outputs
-paths_file="paths"
+# Set the working directory based on the input parameter
+working_dir="${1:-.}"  # Use the first parameter or default to the current directory
+
+# Check if the specified directory exists
+if [[ ! -d "$working_dir" ]]; then
+    echo "Error: Directory '$working_dir' does not exist."
+    exit 1
+fi
+
+paths_file="paths"                                            # Files to save outputs
 functions_file="functions"
 
-# Clear the output files if they exist
-> "$paths_file"
+> "$paths_file"                                               # Clears the output files if they exist
 > "$functions_file"
 
-# Add the Makefile header to the paths file
-echo "SOURCES = \\" > "$paths_file"
+echo "SOURCES = \\" > "$paths_file"                           # Adds the Makefile header to the paths file
 
-# Find all C files in the current directory
-c_files=($(find . -type f -name "*.c")) # Store files in an array
-file_count=${#c_files[@]} # Get the total number of files
+                                                              # Finds all .c files in the specified directory
+c_files=($(find "$working_dir" -type f -name "*.c"))          # Stores files in an array
+file_count=${#c_files[@]}                                     # Gets the total number of files
 counter=0
 
 for input_file in "${c_files[@]}"; do
-    counter=$((counter + 1))
-    # Save the relative path to the paths file
+    counter=$((counter + 1))                                  # Save the relative path to the paths file
+    file_name=$(basename "$input_file")                      # Extract just the file name using basename
+
+    # Add relative path to the Makefile
+    relative_path="${input_file#$working_dir/}"              # Calculate relative path from the working directory
     if [[ $counter -lt $file_count ]]; then
-        echo "    ${input_file#./} \\" >> "$paths_file" # Add a backslash for non-final lines
+        echo "    $relative_path \\" >> "$paths_file"         # Add a backslash for non-final lines
     else
-        echo "    ${input_file#./}" >> "$paths_file" # No backslash for the last line
+        echo "    $relative_path" >> "$paths_file"            # No backslash for the last line
     fi
 
-    # Extract matching lines (not starting with "//" but preceded by a "//" comment) to the functions file
-    awk -v file="${input_file#./}" '
-        BEGIN { first_function = 1; }
-        # Check if the previous line starts with "//" and the current line does not start with "//" and is not empty
+                                                              # Extract matching lines (not starting with "//" but
+                                                              # preceded by a "//" comment) to the functions file
+    awk -v file="$file_name" '                                # Pass only the file name
+        BEGIN { first_function = 1; }                         # Check if the previous line starts with "//"
+                                                              # the current line does not start with "//" and
+                                                              # is not empty
         prev_comment && !/^\s*\/\// && $0 !~ /^\s*$/ {
-            # Print a blank line between files if it is not the first function of the script
             if (first_function) {
-                print "";
+                print "\n" "//" file ":";                     # Print the file name only once
+                first_function = 0;
             }
-            print $0 ";";
-            first_function = 0;
+            print $0 ";";                                     # Print the current line, appending ";"
         }
-        # Update the flag for whether the current line starts with "//"
+                                                              # Update the comment flag
         {
-            prev_comment = /^\s*\/\//
+            prev_comment = /^\s*\/\//;
         }
     ' "$input_file" >> "$functions_file"
 
 done
 
-# Print the content of both files, separated by 3 blank lines
-echo "--- Paths File ---"
-echo ""
+echo "--- Paths File ---"                                     # Print the content of both files, separated by
+echo ""                                                       # 3 blank lines
 cat "$paths_file"
 echo ""
 echo ""
@@ -56,6 +65,7 @@ cat "$functions_file"
 echo ""
 
 # Ask the user if they want to copy the content of either file
+
 read -p "Do you want to copy the content of 'functions', 'paths', or 'none' to the clipboard? (f/p/n): " copy_choice
 case "$copy_choice" in
     f)
@@ -69,6 +79,7 @@ case "$copy_choice" in
 esac
 
 # Ask the user if they want to remove the function and path files
+
 read -p "Do you want to remove the 'functions' and 'paths' files ? (Y/N): " remove_choice
 case "$remove_choice" in
     Y)
