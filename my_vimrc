@@ -60,3 +60,71 @@ nnoremap <leader>w :w<CR>
 
 " Set the norminette executable
 let g:syntastic_c_norminette_exec = 'norminette'
+
+
+/////
+
+" Enable plugin manager
+call plug#begin()
+Plug 'vim-syntastic/syntastic'
+Plug 'alexandregv/norminette-vim'
+call plug#end()
+
+" Enable syntax highlighting
+syntax on
+
+" Set tabstop to 4 spaces
+set tabstop=4
+set smarttab
+
+" Set shiftwidth to 4 spaces
+set shiftwidth=4
+
+" Enable mouse support
+set mouse=a
+
+" Set the encoding to UTF-8
+set encoding=utf-8
+
+" Enable line numbers
+set number
+set relativenumber
+" Enable ruler
+set ruler
+
+" Enable cursor line and column highlighting
+set cursorline
+set colorcolumn=80
+
+" Set the highlight color for the cursor line and column
+highlight CursorLine ctermbg=236
+highlight CursorColumn ctermbg=236
+
+" Enable auto-indentation
+set autoindent
+
+" Enable smart indentation
+set smartindent
+
+" Set the color scheme to a dark scheme
+colorscheme desert
+
+" Set the background to dark
+set background=dark
+
+" Map the leader key to ,
+let mapleader=','
+
+" Map the leader key + n to run syntastic with norminette
+nnoremap <leader>n :SyntasticCheck norminette<CR>
+
+" Map the leader key + q to quit Vim
+nnoremap <leader>q :q<CR>
+
+" Map the leader key + w to save the current file
+nnoremap <leader>w :w<CR>
+
+" Set the norminette executable
+let g:syntastic_c_norminette_exec = 'norminette'
+
+
