@@ -9,6 +9,7 @@ syntax on
 
 " Set tabstop to 4 spaces
 set tabstop=4
+set smarttab
 
 " Set shiftwidth to 4 spaces
 set shiftwidth=4
@@ -60,4 +61,10 @@ nnoremap <leader>w :w<CR>
 " Set the norminette executable
 let g:syntastic_c_norminette_exec = 'norminette'
 
+" Sauvegarder la position du curseur et les plis
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 
+" Configuration pour vim-lastplace
+let g:lastplace_ignore = "gitcommit,gitrebase,svn,hgcommit"
+let g:lastplace_ignore_buftype = "quickfix,nofile,help"
+let g:lastplace_open = 1
